@@ -1,0 +1,24 @@
+.vscode/
+
+# Build artifacts
+bloomdb
+bloomdb_asan
+bloomdb_val
+bloomdb_dbg
+
+# Test executables
+tests/test_bitarray
+tests/test_hash64
+tests/test_bloomdb
+tests/test_storage
+tests/test_bitarray_asan
+tests/test_hash64_asan
+tests/test_bloomdb_asan
+tests/test_storage_asan
+
+# Benchmark executables and results
+tests/benchmark_pro
+benchmark_results.json
+
+# Temporary test files
+*.bloomdb
