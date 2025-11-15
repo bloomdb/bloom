@@ -47,14 +47,34 @@ static inline bool get_bit(const uint8_t* arr, size_t bit) {
 }
 
 // ============================================================================
-// API PÚBLICA
+// API PÚBLICA - Extended (error explícito)
 // ============================================================================
 
-BloomDB* bloomdb_create(size_t bits, int num_hashes, uint64_t seed) {
-    if (bits == 0 || num_hashes <= 0) return NULL;
+const char* bloomdb_strerror(BloomDBError err) {
+    switch (err) {
+        case BLOOMDB_OK:
+            return "Success";
+        case BLOOMDB_ERR_INVALID_ARGUMENT:
+            return "Invalid argument";
+        case BLOOMDB_ERR_ALLOC:
+            return "Memory allocation failed";
+        case BLOOMDB_ERR_FILE_IO:
+            return "File I/O error";
+        case BLOOMDB_ERR_FORMAT:
+            return "Invalid file format";
+        case BLOOMDB_ERR_INTERNAL:
+            return "Internal error";
+        default:
+            return "Unknown error";
+    }
+}
+
+BloomDBError bloomdb_create_ex(size_t bits, int num_hashes, uint64_t seed, BloomDB** out_db) {
+    if (!out_db) return BLOOMDB_ERR_INVALID_ARGUMENT;
+    if (bits == 0 || num_hashes <= 0) return BLOOMDB_ERR_INVALID_ARGUMENT;
 
     BloomDB* db = malloc(sizeof(BloomDB));
-    if (!db) return NULL;
+    if (!db) return BLOOMDB_ERR_ALLOC;
 
     db->bit_count = bits;
     db->byte_count = (bits + 7) / 8;
@@ -64,9 +84,46 @@ BloomDB* bloomdb_create(size_t bits, int num_hashes, uint64_t seed) {
     db->bitarray = calloc(db->byte_count, 1);
     if (!db->bitarray) {
         free(db);
-        return NULL;
+        return BLOOMDB_ERR_ALLOC;
     }
 
+    *out_db = db;
+    return BLOOMDB_OK;
+}
+
+BloomDBError bloomdb_insert_ex(BloomDB* db, const void* key, size_t len) {
+    if (!db || !key || len == 0) return BLOOMDB_ERR_INVALID_ARGUMENT;
+
+    for (int i = 0; i < db->num_hashes; i++) {
+        size_t bit = get_bit_index(db, key, len, i);
+        set_bit(db->bitarray, bit);
+    }
+    return BLOOMDB_OK;
+}
+
+BloomDBError bloomdb_might_contain_ex(const BloomDB* db, const void* key, size_t len, bool* out_result) {
+    if (!db || !key || len == 0 || !out_result) return BLOOMDB_ERR_INVALID_ARGUMENT;
+
+    for (int i = 0; i < db->num_hashes; i++) {
+        size_t bit = get_bit_index(db, key, len, i);
+        if (!get_bit(db->bitarray, bit)) {
+            *out_result = false;
+            return BLOOMDB_OK;
+        }
+    }
+    *out_result = true;
+    return BLOOMDB_OK;
+}
+
+// ============================================================================
+// API PÚBLICA - Simple (wrappers sobre _ex)
+// ============================================================================
+
+BloomDB* bloomdb_create(size_t bits, int num_hashes, uint64_t seed) {
+    BloomDB* db = NULL;
+    if (bloomdb_create_ex(bits, num_hashes, seed, &db) != BLOOMDB_OK) {
+        return NULL;
+    }
     return db;
 }
 
@@ -77,22 +134,13 @@ void bloomdb_free(BloomDB* db) {
 }
 
 bool bloomdb_insert(BloomDB* db, const void* key, size_t len) {
-    if (!db || !key || len == 0) return false;
-
-    for (int i = 0; i < db->num_hashes; i++) {
-        size_t bit = get_bit_index(db, key, len, i);
-        set_bit(db->bitarray, bit);
-    }
-    return true;
+    return bloomdb_insert_ex(db, key, len) == BLOOMDB_OK;
 }
 
 bool bloomdb_might_contain(const BloomDB* db, const void* key, size_t len) {
-    if (!db || !key || len == 0) return false;
-
-    for (int i = 0; i < db->num_hashes; i++) {
-        size_t bit = get_bit_index(db, key, len, i);
-        if (!get_bit(db->bitarray, bit))
-            return false; // falso negativo imposible, osea retorno enseguida
+    bool result = false;
+    if (bloomdb_might_contain_ex(db, key, len, &result) != BLOOMDB_OK) {
+        return false;
     }
-    return true; // podría existir xd (posible falso positivo)
+    return result;
 }

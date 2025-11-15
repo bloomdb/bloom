@@ -8,13 +8,16 @@
 - [x] Makefile básico
 - [x] Tests unitarios básicos (bitarray, hash64, bloomdb, storage)
 - [x] Tests de memoria (Valgrind + ASan)
+- [x] Tests de Rendimiento ()
 - [x] Benchmarks profesionales con percentiles y exportación JSON
 
-## Fase 2 – Librería sólida
-- [ ] Tests unitarios por módulo
-- [ ] Manejo de errores más explícito
-- [ ] API helpers (por ejemplo, `bloomdb_insert_cstr`)
-- [ ] Documentación interna más detallada
+## ✅ Fase 2 – Librería sólida (COMPLETADA)
+- [x] Tests unitarios por módulo (test_bloomdb_ex, test_storage_ex, test_helpers)
+- [x] Manejo de errores más explícito (BloomDBError enum con 5 códigos)
+- [x] API helpers (bloomdb_*_cstr, bloomdb_*_u64)
+- [x] Funciones *_ex con retorno de error explícito
+- [x] API simple como wrappers de funciones *_ex
+- [x] Documentación API completa (docs/API_REFERENCE.md)
 
 ## Fase 3 – Variantes de Bloom Filters
 - [ ] Blocked Bloom filter
