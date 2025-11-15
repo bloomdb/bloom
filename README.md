@@ -1,5 +1,8 @@
 # BloomDB
 
+<img width="278" height="271" alt="logobloom" src="https://github.com/user-attachments/assets/05b13603-e59c-4200-98a2-958a86bb300b" />
+<br>
+
 BloomDB es un filtro de Bloom escrito en C, pensado para ser:
 
 - muy rápido
@@ -63,3 +66,4 @@ int main(void) {
     bloomdb_free(db2);
     return 0;
 }
+
