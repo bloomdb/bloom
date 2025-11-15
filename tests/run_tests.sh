@@ -51,7 +51,7 @@ echo ""
 # Final summary
 echo "╔═══════════════════════════════════════════╗"
 if [ $failed -eq 0 ]; then
-    echo -e "║   ${GREEN}🎉 ALL TESTS PASSED!${NC}                   ║"
+    echo -e "║   ${GREEN}✅ ALL TESTS PASSED!${NC}                   ║"
     echo "╚═══════════════════════════════════════════╝"
     exit 0
 else
