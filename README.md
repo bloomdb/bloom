@@ -12,25 +12,24 @@ BloomDB es un filtro de Bloom escrito en C, pensado para ser:
 
 Ideal para casos como:
 
-- evitar buscar en disco/BD si ya sabemos que una clave NO está
-- pre-filtrar emails, IDs, URLs, etc.
-- experimentar con estructuras probabilísticas en C
+- evitar buscar en disco/BD si ya sabemos que una clave no está
+- pre-filtrar emails, IDs, URLs, etc..
 
 ---
 
 ## Características
 
 - Implementado en C11 puro (sin dependencias externas)
-- API pequeña: `create`, `insert`, `might_contain`, `save`, `load`
+- API: `create`, `insert`, `might_contain`, `save`, `load`
 - Persistencia binaria a archivo (`.bloomdb`)
 - Arquitectura modular: `bloomdb`, `bitarray`, `hash64`, `storage`
 
 > **Nota:** Actualmente BloomDB **no es thread-safe**.  
-> Se asume uso desde un único hilo. Soporte para concurrencia se evaluará en futuras versiones.
+> Se asume uso desde un único hilo. El soporte para concurrencia se implementará en futuras versiones.
 
 ---
 
-## Ejemplo rápido
+## Ejemplo de implementación rápido
 
 ```c
 #include <stdio.h>
@@ -67,5 +66,6 @@ int main(void) {
     bloomdb_free(db2);
     return 0;
 }
+
 
 
